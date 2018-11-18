@@ -1,0 +1,19 @@
+{
+    "parser": "babel-eslint",
+    "plugins": [
+      "react"
+    ],
+    "env": {
+      "browser": true,
+      "node": true    
+    },
+    "extends":"airbnb",
+    "rules": {
+      "max-len": [2, 1000,{"ignoreComments": true}],
+      "comma-dangle": ["error", "never"],
+      "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+      "react/forbid-prop-types": [2, { "forbid": ["any"] }],
+      "no-tabs": 0,
+      "import/extensions": ["always", {"ignorePackages": true} ]
+    }
+  }
