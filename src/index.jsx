@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import './style.scss';
@@ -10,7 +10,13 @@ export default class TaggleInput extends Component {
     maxTags: PropTypes.number,
     allowDuplicates: PropTypes.bool,
     duplicateTagClass: PropTypes.string,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
+    onBeforeTagAdd: PropTypes.func,
+    onAfterTagAdd: PropTypes.func,
+    onBeforeTagRemove: PropTypes.func,
+    onAfterTagRemove: PropTypes.func,
+    getTagValues: PropTypes.func,
+    submitButtonText: PropTypes.string
   }
 
   static defaultProps ={
@@ -18,7 +24,13 @@ export default class TaggleInput extends Component {
     maxTags: 0,
     allowDuplicates: false,
     duplicateTagClass: 'bounce',
-    placeholder: 'Enter the tags'
+    placeholder: 'Enter the tags',
+    onBeforeTagAdd: undefined,
+    onAfterTagAdd: undefined,
+    onBeforeTagRemove: undefined,
+    onAfterTagRemove: undefined,
+    getTagValues: undefined,
+    submitButtonText: 'Get Tags'
   }
 
   constructor(props) {
@@ -48,6 +60,9 @@ export default class TaggleInput extends Component {
         }
         break;
       case keys.tab:
+        event.preventDefault();
+        this.addTag(event.target.value);
+        break;
       case keys.enter:
       case keys.spacebar:
         this.addTag(event.target.value);
@@ -58,32 +73,50 @@ export default class TaggleInput extends Component {
   }
 
   addTag = (tag) => {
-    if (!this.props.allowDuplicates && this.state.tags.indexOf(tag) !== -1) {
-      this.setState({ duplicateIndex: this.state.tags.indexOf(tag) });
-    } else {
-      this.setState({ tags: [...this.state.tags, tag], duplicateIndex: '' });
+    const tagRef = tag.trim();
+    if (!this.props.allowDuplicates && this.state.tags.indexOf(tagRef) !== -1) {
+      this.setState({ duplicateIndex: this.state.tags.indexOf(tagRef) });
+    } else if (tagRef) {
+      if (this.props.onBeforeTagAdd) {
+        this.props.onBeforeTagAdd(tagRef);
+      }
+      this.setState({ tags: [...this.state.tags, tagRef], duplicateIndex: '' });
       this.input.value = '';
       this.input.focus();
+      if (this.props.onAfterTagAdd) {
+        this.props.onAfterTagAdd(tagRef);
+      }
     }
   }
 
   removeTag = (index) => {
+    if (this.props.onBeforeTagRemove) {
+      this.props.onBeforeTagRemove(this.state.tags[index]);
+    }
     const { tags } = this.state;
     tags.splice(index, 1);
     this.setState({ tags });
+    if (this.props.onAfterTagRemove) {
+      this.props.onAfterTagRemove(this.state.tags[index]);
+    }
   }
 
   render() {
-    const { maxTags, placeholder, duplicateTagClass } = this.props;
+    const {
+      maxTags, placeholder, duplicateTagClass, getTagValues, submitButtonText
+    } = this.props;
     const { tags, duplicateIndex } = this.state;
     return (
-      <div className="taggle_wrapper">
-        <ul className="taggle_list">
-          {tags.length > 0 &&
-            tags.map((tag, index) => <li key={Math.random()} className={`taggle ${duplicateIndex === index ? duplicateTagClass : ''}`}><span className="taggle_text">{tag}<button className="close" onClick={() => this.removeTag(index)}><CloseIcon /></button></span></li>)}
-          {(!maxTags || tags.length < maxTags) && <li><input ref={(ele) => { this.input = ele; }}type="text" placeholder={placeholder} onKeyDown={this.onKeyDown} /></li>}
-        </ul>
-      </div>
+      <Fragment>
+        <div className="taggle_wrapper">
+          <ul className="taggle_list">
+            {tags.length > 0 &&
+              tags.map((tag, index) => <li key={Math.random()} className={`taggle ${duplicateIndex === index ? duplicateTagClass : ''}`}><span className="taggle_text">{tag}<button className="close" onClick={() => this.removeTag(index)}><CloseIcon /></button></span></li>)}
+            {(!maxTags || tags.length < maxTags) && <li><input ref={(ele) => { this.input = ele; }}type="text" placeholder={placeholder} onKeyDown={this.onKeyDown} /></li>}
+          </ul>
+        </div>
+        {getTagValues && <button onClick={() => getTagValues(tags)}>{submitButtonText}</button>}
+      </Fragment>
     );
   }
 }
