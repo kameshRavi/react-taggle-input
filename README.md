@@ -3,7 +3,7 @@ Simple react tagging Input component. Inspired from taggle.js -  Jquery library
 
 ## Installation
 ```
-npm install --save react-custom-audio-player
+npm install --save react-taggle-input
 ```
 
 ## Props
