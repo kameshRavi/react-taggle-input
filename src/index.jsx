@@ -15,9 +15,11 @@ export default class TaggleInput extends Component {
     onAfterTagAdd: PropTypes.func,
     onBeforeTagRemove: PropTypes.func,
     onAfterTagRemove: PropTypes.func,
-    getTagValues: PropTypes.func,
-    submitButtonText: PropTypes.string,
-    addTagKeyCodes: PropTypes.array
+    onInputBlur: PropTypes.func,
+    onInputChange: PropTypes.func,
+    keyCodesToAddTag: PropTypes.array,
+    saveOnBlur: PropTypes.bool,
+    readOnly: PropTypes.bool
   }
 
   static defaultProps = {
@@ -30,9 +32,11 @@ export default class TaggleInput extends Component {
     onAfterTagAdd: undefined,
     onBeforeTagRemove: undefined,
     onAfterTagRemove: undefined,
-    getTagValues: undefined,
-    submitButtonText: 'Get Tags',
-    addTagKeyCodes: ['13']
+    onInputBlur: undefined,
+    onInputChange: undefined,
+    keyCodesToAddTag: ['13'],
+    saveOnBlur: false,
+    readOnly: false
   }
 
   constructor(props) {
@@ -45,12 +49,14 @@ export default class TaggleInput extends Component {
   }
 
   componentDidMount() {
-    this.input.focus();
+    if (this.input) {
+      this.input.focus();
+    }
   }
 
   onKeyDown = (event) => {
-    const { addTagKeyCodes } = this.props;
-    if (addTagKeyCodes.includes(event.keyCode)) {
+    const { keyCodesToAddTag } = this.props;
+    if (keyCodesToAddTag.includes(event.keyCode) && event.target.value) {
       this.addTag(event.target.value);
     }
 
@@ -59,6 +65,23 @@ export default class TaggleInput extends Component {
         const { tags } = this.state;
         this.removeTag(tags.length - 1);
       }
+    }
+  }
+
+  onBlur = (event) => {
+    const { onInputBlur, saveOnBlur } = this.props;
+    if (onInputBlur) {
+      onInputBlur(event);
+    }
+    if (saveOnBlur && event.target.value) {
+      this.addTag(event.target.value);
+    }
+  }
+
+  onChange = (event) => {
+    const { onInputChange } = this.props;
+    if (onInputChange) {
+      onInputChange(event);
     }
   }
 
@@ -97,27 +120,23 @@ export default class TaggleInput extends Component {
 
   render() {
     const {
-      maxTags, placeholder, duplicateTagClass, getTagValues, submitButtonText
+      maxTags, placeholder, duplicateTagClass, readOnly
     } = this.props;
     const { tags, duplicateIndex } = this.state;
     return (
-      <>
-        <div className="taggle_wrapper">
-          <ul className="taggle_list">
-            {tags.length > 0
+      <div className="taggle_wrapper">
+        <ul className="taggle_list">
+          {tags.length > 0
             && tags.map((tag, index) => (
               <li key={Math.random()} className={`taggle ${duplicateIndex === index ? duplicateTagClass : ''}`}>
                 <span className="taggle_text">
                   {tag}
-                  <button className="close" type="button" onClick={() => this.removeTag(index)}><CloseIcon /></button>
+                  {!readOnly && <button className="close" type="button" onClick={() => this.removeTag(index)}><CloseIcon /></button>}
                 </span>
               </li>))}
-            {(!maxTags || tags.length < maxTags) && <li><input ref={(ele) => { this.input = ele; }} type="text" placeholder={placeholder} onKeyDown={this.onKeyDown} /></li>}
-          </ul>
-        </div>
-        {getTagValues && <button type="button" onClick={() => getTagValues(tags)}>{submitButtonText}</button>}
-      </>
+          {(!readOnly && (!maxTags || tags.length < maxTags)) && <li><input ref={(ele) => { this.input = ele; }} type="text" placeholder={placeholder} onKeyDown={this.onKeyDown} onBlur={this.onBlur} onChange={this.onChange} /></li>}
+        </ul>
+      </div>
     );
   }
 }
-
