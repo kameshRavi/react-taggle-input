@@ -70,7 +70,7 @@ export default class TaggleInput extends Component {
 
   onBlur = (event) => {
     const { onInputBlur, saveOnBlur } = this.props;
-    if (onInputBlur) {
+    if (typeof onInputBlur === 'function') {
       onInputBlur(event);
     }
     if (saveOnBlur && event.target.value) {
@@ -80,7 +80,7 @@ export default class TaggleInput extends Component {
 
   onChange = (event) => {
     const { onInputChange } = this.props;
-    if (onInputChange) {
+    if (typeof onInputChange === 'function') {
       onInputChange(event);
     }
   }
@@ -92,13 +92,13 @@ export default class TaggleInput extends Component {
     if (!allowDuplicates && tags.indexOf(tagRef) !== -1) {
       this.setState({ duplicateIndex: tags.indexOf(tagRef) });
     } else if (tagRef) {
-      if (onBeforeTagAdd) {
+      if (typeof onBeforeTagAdd === 'function') {
         onBeforeTagAdd(tagRef);
       }
       this.setState({ tags: [...tags, tagRef], duplicateIndex: '' });
       this.input.value = '';
       this.input.focus();
-      if (onAfterTagAdd) {
+      if (typeof onAfterTagAdd === 'function') {
         onAfterTagAdd(tagRef);
       }
     }
@@ -107,13 +107,13 @@ export default class TaggleInput extends Component {
   removeTag = (index) => {
     const { onAfterTagRemove, onBeforeTagRemove } = this.props;
     const { tags } = this.state;
-    if (onBeforeTagRemove) {
+    if (typeof onBeforeTagRemove === 'function') {
       onBeforeTagRemove(tags[index]);
     }
     const updatedTags = [...tags];
     updatedTags.splice(index, 1);
     this.setState({ tags: updatedTags });
-    if (onAfterTagRemove) {
+    if (typeof onAfterTagRemove === 'function') {
       onAfterTagRemove(tags[index]);
     }
   }
