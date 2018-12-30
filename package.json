@@ -18,6 +18,13 @@
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>/src/test-setup.js",
     "verbose": true,
+    "collectCoverage": true,
+    "coverageReporters": [
+      "html"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/src/index.jsx"
+    ],
     "moduleNameMapper": {
       "^.+\\.(scss)$": "babel-jest"
     }
