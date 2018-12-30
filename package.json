@@ -1,6 +1,6 @@
 {
   "name": "react-taggle-input",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple react tagging Input component. Inspired from taggle.js -  Jquery library",
   "keywords": [
     "react",
