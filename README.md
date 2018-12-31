@@ -20,7 +20,7 @@ onBeforeTagRemove | `Function` | `undefined`
 onAfterTagRemove |  `Function` | `undefined` 
 onInputBlur | `Function` | `undefined`
 onInputChange | `Function` | `undefined`
-keyCodesToAddTag | `Array` | `['13']`
+keyCodesToAddTag | `Array` | `[13]`
 saveOnBlur | `Boolean` | `false`
 readOnly | `Boolean` | `false`
 

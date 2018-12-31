@@ -34,7 +34,7 @@ export default class TaggleInput extends Component {
     onAfterTagRemove: undefined,
     onInputBlur: undefined,
     onInputChange: undefined,
-    keyCodesToAddTag: ['13'],
+    keyCodesToAddTag: [13],
     saveOnBlur: false,
     readOnly: false
   }
@@ -46,6 +46,11 @@ export default class TaggleInput extends Component {
       tags,
       duplicateIndex: ''
     };
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.addTag = this.addTag.bind(this);
+    this.removeTag = this.removeTag.bind(this);
   }
 
   componentDidMount() {
@@ -54,38 +59,38 @@ export default class TaggleInput extends Component {
     }
   }
 
-  onKeyDown = (event) => {
+  onKeyDown(event) {
     const { keyCodesToAddTag } = this.props;
-    if (keyCodesToAddTag.includes(event.keyCode) && event.target.value) {
+    if (keyCodesToAddTag.includes(event.keyCode) && event.target && event.target.value) {
       this.addTag(event.target.value);
     }
 
     if (event.keyCode === 8) {
-      if (!event.target.value) {
+      if (!(event.target && event.target.value)) {
         const { tags } = this.state;
         this.removeTag(tags.length - 1);
       }
     }
   }
 
-  onBlur = (event) => {
+  onBlur(event) {
     const { onInputBlur, saveOnBlur } = this.props;
     if (typeof onInputBlur === 'function') {
       onInputBlur(event);
     }
-    if (saveOnBlur && event.target.value) {
+    if (saveOnBlur && event.target && event.target.value) {
       this.addTag(event.target.value);
     }
   }
 
-  onChange = (event) => {
+  onChange(event) {
     const { onInputChange } = this.props;
     if (typeof onInputChange === 'function') {
       onInputChange(event);
     }
   }
 
-  addTag = (tag) => {
+  addTag(tag) {
     const tagRef = tag.trim();
     const { allowDuplicates, onBeforeTagAdd, onAfterTagAdd } = this.props;
     const { tags } = this.state;
@@ -96,15 +101,17 @@ export default class TaggleInput extends Component {
         onBeforeTagAdd(tagRef);
       }
       this.setState({ tags: [...tags, tagRef], duplicateIndex: '' });
-      this.input.value = '';
-      this.input.focus();
+      if (this.input) {
+        this.input.value = '';
+        this.input.focus();
+      }
       if (typeof onAfterTagAdd === 'function') {
         onAfterTagAdd(tagRef);
       }
     }
   }
 
-  removeTag = (index) => {
+  removeTag(index) {
     const { onAfterTagRemove, onBeforeTagRemove } = this.props;
     const { tags } = this.state;
     if (typeof onBeforeTagRemove === 'function') {
